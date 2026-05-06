@@ -21,7 +21,8 @@ import {
   useGetMe, 
   useGetUserIdeas,
   useUpdateProfile,
-  getGetMeQueryKey
+  getGetMeQueryKey,
+  getGetUserIdeasQueryKey
 } from "@workspace/api-client-react";
 import { useLocation, Link } from "wouter";
 import { useToast } from "@/hooks/use-toast";
@@ -47,11 +48,11 @@ export default function Profile() {
   const [isEditing, setIsEditing] = useState(false);
 
   const { data: user, isLoading: isUserLoading } = useGetMe({
-    query: { retry: false }
+    query: { queryKey: getGetMeQueryKey(), retry: false },
   });
 
   const { data: ideasData, isLoading: isIdeasLoading } = useGetUserIdeas(user?.id || 0, {
-    query: { enabled: !!user?.id }
+    query: { queryKey: getGetUserIdeasQueryKey(user?.id || 0), enabled: !!user?.id },
   });
 
   const updateProfile = useUpdateProfile();

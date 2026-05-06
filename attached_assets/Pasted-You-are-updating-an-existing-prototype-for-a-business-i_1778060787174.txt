@@ -1,0 +1,254 @@
+You are updating an existing prototype for a business idea marketplace. Please first inspect the current codebase, understand the framework, data model, routes, components, styling approach, auth setup, and any seed/demo data. Then make the following changes carefully without breaking the app.
+
+Product goal:
+The site should become a publishable early beta where a small group of invited friends can create accounts, log in, and submit real business ideas. The platform is a structured marketplace where business ideas are discovered, ranked, developed, localised by market, and matched with contributors who can help move them from concept to launch.
+
+Important:
+Remove all seed/demo/sample business ideas from the application. The live prototype must launch empty. Do not replace them with new fake ideas. I want to create the first real ideas myself.
+
+Core changes required:
+
+1. Remove seed/demo data
+- Find and remove all hardcoded, seeded, mock, or demo business ideas.
+- Ensure the database or local storage starts empty for ideas.
+- If there is a seed script, disable or remove the part that creates sample ideas.
+- Add a polished empty state wherever ideas would normally appear:
+  "No ideas have been submitted yet."
+  Include a clear "Submit an Idea" call-to-action.
+
+2. User accounts and authentication
+- Ensure users can create an account, log in, log out, and remain authenticated across page refreshes.
+- If authentication already exists, test and repair the full flow.
+- If auth does not exist, implement a simple secure auth flow appropriate for this prototype.
+- Each idea must be linked to the user who submitted it.
+- Add a "My Ideas" page where logged-in users can see ideas they submitted.
+
+3. Navigation and pages
+Create or update the main navigation to include:
+- Home
+- Explore Ideas
+- Submit Idea
+- My Ideas
+- How It Works
+- Login / Sign Up or user profile/logout when logged in
+
+The site should be clear and usable for first-time visitors.
+
+4. Homepage messaging
+Update the homepage to explain the product clearly:
+
+"A structured marketplace where business ideas are submitted, ranked, localised by market, developed through evidence, and matched with contributors who can help move them from concept to launch."
+
+Include a simple workflow section:
+1. Submit an idea
+2. Structure the opportunity
+3. Score and rank it
+4. Localise it by market
+5. Identify contributor needs
+6. Move toward validation, prototype, pilot and launch
+
+Include a clear CTA:
+- "Create Account"
+- "Submit an Idea"
+
+5. Idea submission form
+Replace any basic idea form with a structured form containing at least the following fields:
+
+- Idea title
+- One-line summary
+- Problem being solved
+- Target customer
+- Current alternatives or competitors
+- Proposed solution
+- Primary market or geography
+- Why this market?
+- Revenue model
+- Current stage:
+  - Raw concept
+  - Researching
+  - Validating
+  - Prototype
+  - Pilot
+  - Launch-ready
+- Contributor skills needed, multi-select:
+  - Market research
+  - Technical development
+  - Finance modelling
+  - Sales / customer discovery
+  - Operations
+  - Legal / regulatory
+  - Design / UX
+  - Domain expert
+- Visibility:
+  - Public summary only
+  - Private details visible only to owner/admin
+  - Open to contributors
+
+Validation:
+- Required fields: title, one-line summary, problem, target customer, proposed solution, market/geography, stage.
+- Show clear user-friendly validation messages.
+
+6. Idea detail page
+Each submitted idea should have a detail page showing:
+- Title
+- Summary
+- Problem
+- Target customer
+- Proposed solution
+- Market/geography
+- Revenue model
+- Stage
+- Contributor skills needed
+- Localisation notes
+- Idea score
+- Status badge
+- Owner name or username if available
+- Created date
+
+Include actions:
+- Owner can edit the idea.
+- Owner can archive or delete the idea.
+- Other logged-in users can click "Offer to Contribute" or "Express Interest".
+- If full messaging is not built, store the expression of interest as a record linked to the idea and user.
+
+7. Scoring system
+Implement a simple transparent rule-based scoring system out of 100. It does not need AI.
+
+Score dimensions:
+- Problem clarity
+- Customer specificity
+- Market relevance
+- Feasibility
+- Differentiation
+- Revenue potential
+- Localisation strength
+- Contributor readiness
+- Evidence strength
+
+The scoring can be calculated from completeness and quality signals in the form. Keep the logic simple and understandable.
+
+Show this note near the score:
+"Early-stage idea score based on the information provided. This is not investment advice or a guarantee of success."
+
+8. Localisation features
+Add a visible "Market Localisation" section to the idea form and idea detail page.
+
+Fields:
+- Primary country/region
+- Target customer segment
+- Local constraints
+- Regulatory considerations
+- Infrastructure dependencies
+- Local competitors
+- Local launch channels
+
+These can be optional for now, except primary market/geography.
+
+9. Contributor matching structure
+Add contributor need tags to each idea.
+On the idea detail page, show:
+"This idea needs contributors in:"
+Then display the selected contributor skill tags.
+
+Add an "Offer to Contribute" button for logged-in users who are not the idea owner.
+When clicked:
+- Save an expression of interest.
+- Show confirmation: "Your interest has been recorded."
+- Prevent duplicate interest from the same user on the same idea.
+
+10. Admin area
+Add a basic admin page or dashboard if the project structure supports it.
+
+Admin should be able to:
+- View all users
+- View all ideas
+- Approve/unapprove ideas
+- Feature/unfeature ideas
+- Delete or archive inappropriate test content
+- View contributor expressions of interest
+
+If a full admin role system is too much for now, create a simple placeholder admin route protected by a clearly defined admin email or admin flag.
+
+11. Trust, privacy and IP language
+Add a short disclaimer on the Submit Idea page:
+
+"Only share information you are comfortable disclosing. Public idea summaries may be visible to other users. Detailed information should be kept private unless you choose to share it. Formal IP ownership, equity and contributor agreements are not yet handled by this prototype."
+
+Add basic static pages or footer links for:
+- About
+- How It Works
+- Privacy
+- Terms / Submission Guidelines
+- Contact
+
+The Terms / Submission Guidelines page should include:
+- Do not submit confidential information unless you are comfortable sharing it.
+- Users remain responsible for what they submit.
+- The prototype does not determine legal ownership or equity.
+- Contributor participation is exploratory until formal agreements are created.
+
+12. Explore Ideas page
+The Explore Ideas page should:
+- Show only approved/public ideas, unless the user is the owner/admin.
+- Support empty state.
+- Support cards for submitted ideas.
+- Include basic filters:
+  - Stage
+  - Market/geography
+  - Contributor skills needed
+  - Sort by newest
+  - Sort by score
+
+13. My Ideas page
+The My Ideas page should:
+- Require login.
+- Show the logged-in user's submitted ideas.
+- Include status, score and stage.
+- Provide edit/view/delete or archive actions.
+- Show empty state:
+  "You have not submitted any ideas yet."
+  Include "Submit an Idea" button.
+
+14. UI and design
+Keep the design clean, modern and professional.
+Use plain business language.
+Avoid overclaiming.
+Make the site feel credible as an early beta.
+Ensure the site works well on mobile and desktop.
+Use clear cards, badges, simple forms and readable spacing.
+
+Suggested tone:
+- Practical
+- Structured
+- Credible
+- Startup-friendly
+- Not gimmicky
+
+15. Launch readiness
+Before finishing, test or reason through the following user flows:
+- New user creates account
+- User logs in
+- User submits idea
+- Idea appears in My Ideas
+- Idea appears in Explore Ideas if public/approved
+- User can open idea detail page
+- Another user can offer to contribute
+- Empty state works when no ideas exist
+- Seed/demo ideas do not reappear after refresh or restart
+
+16. Technical expectations
+- Preserve the existing framework and styling approach where practical.
+- Avoid introducing unnecessary dependencies.
+- Keep code clean and maintainable.
+- Add comments only where helpful.
+- If database migrations or schema changes are needed, implement them.
+- If using local storage or in-memory data, make sure the limitations are clear and preferably move to persistent storage if the current stack supports it.
+- Do not hardcode fake users, fake ideas or fake activity.
+
+Final output:
+After making the changes, provide:
+- A summary of what was changed
+- Any files modified
+- Any new environment variables required
+- Any database migration or setup steps
+- Any remaining limitations or recommended next improvements

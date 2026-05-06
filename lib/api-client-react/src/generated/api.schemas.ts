@@ -77,6 +77,15 @@ export interface UpdateProfileBody {
   willingRoles?: string;
 }
 
+export type IdeaVisibility =
+  (typeof IdeaVisibility)[keyof typeof IdeaVisibility];
+
+export const IdeaVisibility = {
+  public: "public",
+  private: "private",
+  contributors_only: "contributors_only",
+} as const;
+
 export type IdeaStatus = (typeof IdeaStatus)[keyof typeof IdeaStatus];
 
 export const IdeaStatus = {
@@ -101,11 +110,15 @@ export interface Idea {
   targetRegion: string;
   maturityStage: string;
   tags?: string | null;
+  contributorSkills?: string | null;
+  visibility: IdeaVisibility;
   upvotes: number;
   downvotes: number;
   score: number;
+  qualityScore: number;
   commentsCount: number;
   contributorsNeeded: number;
+  featured: boolean;
   status: IdeaStatus;
   ownerId: number;
   ownerName: string;
@@ -155,13 +168,29 @@ export type IdeaDetail = Idea & {
   problemStatement: string;
   proposedSolution: string;
   targetCustomer: string;
+  revenueModel?: string | null;
+  whyThisMarket?: string | null;
   knownCompetitors?: string | null;
   legalConsiderations?: string | null;
+  regulatoryConsiderations?: string | null;
+  infrastructureDependencies?: string | null;
+  localCompetitors?: string | null;
+  localLaunchChannels?: string | null;
+  localConstraints?: string | null;
   pmfAssumptions?: string | null;
   requiredRoles?: string | null;
   ventureElements?: VentureElement[];
   marketFitRegions?: MarketFitRegion[];
 };
+
+export type CreateIdeaBodyVisibility =
+  (typeof CreateIdeaBodyVisibility)[keyof typeof CreateIdeaBodyVisibility];
+
+export const CreateIdeaBodyVisibility = {
+  public: "public",
+  private: "private",
+  contributors_only: "contributors_only",
+} as const;
 
 export interface CreateIdeaBody {
   title: string;
@@ -169,17 +198,35 @@ export interface CreateIdeaBody {
   description: string;
   industry: string;
   targetRegion: string;
+  whyThisMarket?: string;
   problemStatement: string;
   proposedSolution: string;
   targetCustomer: string;
   maturityStage: string;
+  revenueModel?: string;
   pmfAssumptions?: string;
   knownCompetitors?: string;
   legalConsiderations?: string;
+  regulatoryConsiderations?: string;
+  infrastructureDependencies?: string;
+  localCompetitors?: string;
+  localLaunchChannels?: string;
+  localConstraints?: string;
   requiredRoles?: string;
+  contributorSkills?: string;
   contributorsNeeded?: number;
   tags?: string;
+  visibility?: CreateIdeaBodyVisibility;
 }
+
+export type UpdateIdeaBodyVisibility =
+  (typeof UpdateIdeaBodyVisibility)[keyof typeof UpdateIdeaBodyVisibility];
+
+export const UpdateIdeaBodyVisibility = {
+  public: "public",
+  private: "private",
+  contributors_only: "contributors_only",
+} as const;
 
 export interface UpdateIdeaBody {
   title?: string;
@@ -187,16 +234,25 @@ export interface UpdateIdeaBody {
   description?: string;
   industry?: string;
   targetRegion?: string;
+  whyThisMarket?: string;
   problemStatement?: string;
   proposedSolution?: string;
   targetCustomer?: string;
   maturityStage?: string;
+  revenueModel?: string;
   pmfAssumptions?: string;
   knownCompetitors?: string;
   legalConsiderations?: string;
+  regulatoryConsiderations?: string;
+  infrastructureDependencies?: string;
+  localCompetitors?: string;
+  localLaunchChannels?: string;
+  localConstraints?: string;
   requiredRoles?: string;
+  contributorSkills?: string;
   contributorsNeeded?: number;
   tags?: string;
+  visibility?: UpdateIdeaBodyVisibility;
 }
 
 export interface PaginatedIdeas {
@@ -395,6 +451,10 @@ export interface AdminUpdateIdeaStatusBody {
   status: AdminUpdateIdeaStatusBodyStatus;
 }
 
+export interface AdminToggleFeaturedBody {
+  featured: boolean;
+}
+
 export type AdminUpdateUserRoleBodyRole =
   (typeof AdminUpdateUserRoleBodyRole)[keyof typeof AdminUpdateUserRoleBodyRole];
 
@@ -407,13 +467,33 @@ export interface AdminUpdateUserRoleBody {
   role: AdminUpdateUserRoleBodyRole;
 }
 
+export interface AdminContribution {
+  id: number;
+  ideaId: number;
+  ideaTitle: string;
+  userId: number;
+  userName: string;
+  role: string;
+  message?: string | null;
+  contributionType: string;
+  status: string;
+  createdAt: string;
+}
+
+export interface PaginatedAdminContributions {
+  contributions: AdminContribution[];
+  total: number;
+  page: number;
+  totalPages: number;
+}
+
 export type ListIdeasParams = {
   page?: number;
   limit?: number;
   industry?: string;
   maturityStage?: string;
   region?: string;
-  contributionRole?: string;
+  contributorSkill?: string;
   sort?: ListIdeasSort;
   search?: string;
 };
@@ -423,6 +503,7 @@ export type ListIdeasSort = (typeof ListIdeasSort)[keyof typeof ListIdeasSort];
 export const ListIdeasSort = {
   newest: "newest",
   most_voted: "most_voted",
+  highest_score: "highest_score",
   most_active: "most_active",
   most_commented: "most_commented",
 } as const;
@@ -443,5 +524,9 @@ export type AdminListUsersParams = {
 };
 
 export type AdminListCommentsParams = {
+  page?: number;
+};
+
+export type AdminListContributionsParams = {
   page?: number;
 };

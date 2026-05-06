@@ -35,9 +35,7 @@ export default function Login() {
 
   // Redirect if already logged in
   const { data: user, isLoading: isUserLoading } = useGetMe({
-    query: { 
-      retry: false,
-    }
+    query: { queryKey: getGetMeQueryKey(), retry: false },
   });
 
   if (user && !isUserLoading) {

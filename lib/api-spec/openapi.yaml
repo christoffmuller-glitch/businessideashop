@@ -153,7 +153,7 @@ paths:
           in: query
           schema:
             type: string
-        - name: contributionRole
+        - name: contributorSkill
           in: query
           schema:
             type: string
@@ -161,7 +161,7 @@ paths:
           in: query
           schema:
             type: string
-            enum: [newest, most_voted, most_active, most_commented]
+            enum: [newest, most_voted, highest_score, most_active, most_commented]
         - name: search
           in: query
           schema:
@@ -728,6 +728,31 @@ paths:
               schema:
                 $ref: "#/components/schemas/Idea"
 
+  /admin/ideas/{id}/featured:
+    put:
+      operationId: adminToggleFeatured
+      tags: [admin]
+      summary: Admin - feature or unfeature an idea
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminToggleFeaturedBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Idea"
+
   /admin/users:
     get:
       operationId: adminListUsers
@@ -795,6 +820,25 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PaginatedComments"
+
+  /admin/contributions:
+    get:
+      operationId: adminListContributions
+      tags: [admin]
+      summary: Admin - list all expressions of interest
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+      responses:
+        "200":
+          description: Contributions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedAdminContributions"
 
 components:
   schemas:
@@ -950,16 +994,26 @@ components:
         tags:
           type: string
           nullable: true
+        contributorSkills:
+          type: string
+          nullable: true
+        visibility:
+          type: string
+          enum: [public, private, contributors_only]
         upvotes:
           type: integer
         downvotes:
           type: integer
         score:
           type: integer
+        qualityScore:
+          type: integer
         commentsCount:
           type: integer
         contributorsNeeded:
           type: integer
+        featured:
+          type: boolean
         status:
           type: string
           enum: [active, removed]
@@ -977,7 +1031,7 @@ components:
         isFollowing:
           type: boolean
           nullable: true
-      required: [id, title, summary, industry, targetRegion, maturityStage, upvotes, downvotes, score, commentsCount, contributorsNeeded, status, ownerId, ownerName, createdAt]
+      required: [id, title, summary, industry, targetRegion, maturityStage, visibility, upvotes, downvotes, score, qualityScore, commentsCount, contributorsNeeded, featured, status, ownerId, ownerName, createdAt]
 
     IdeaDetail:
       allOf:
@@ -992,10 +1046,31 @@ components:
               type: string
             targetCustomer:
               type: string
+            revenueModel:
+              type: string
+              nullable: true
+            whyThisMarket:
+              type: string
+              nullable: true
             knownCompetitors:
               type: string
               nullable: true
             legalConsiderations:
+              type: string
+              nullable: true
+            regulatoryConsiderations:
+              type: string
+              nullable: true
+            infrastructureDependencies:
+              type: string
+              nullable: true
+            localCompetitors:
+              type: string
+              nullable: true
+            localLaunchChannels:
+              type: string
+              nullable: true
+            localConstraints:
               type: string
               nullable: true
             pmfAssumptions:
@@ -1027,6 +1102,8 @@ components:
           type: string
         targetRegion:
           type: string
+        whyThisMarket:
+          type: string
         problemStatement:
           type: string
         proposedSolution:
@@ -1035,19 +1112,37 @@ components:
           type: string
         maturityStage:
           type: string
+        revenueModel:
+          type: string
         pmfAssumptions:
           type: string
         knownCompetitors:
           type: string
         legalConsiderations:
           type: string
+        regulatoryConsiderations:
+          type: string
+        infrastructureDependencies:
+          type: string
+        localCompetitors:
+          type: string
+        localLaunchChannels:
+          type: string
+        localConstraints:
+          type: string
         requiredRoles:
+          type: string
+        contributorSkills:
           type: string
         contributorsNeeded:
           type: integer
-          default: 1
+          default: 0
         tags:
           type: string
+        visibility:
+          type: string
+          enum: [public, private, contributors_only]
+          default: public
       required: [title, summary, description, industry, targetRegion, problemStatement, proposedSolution, targetCustomer, maturityStage]
 
     UpdateIdeaBody:
@@ -1063,6 +1158,8 @@ components:
           type: string
         targetRegion:
           type: string
+        whyThisMarket:
+          type: string
         problemStatement:
           type: string
         proposedSolution:
@@ -1071,18 +1168,35 @@ components:
           type: string
         maturityStage:
           type: string
+        revenueModel:
+          type: string
         pmfAssumptions:
           type: string
         knownCompetitors:
           type: string
         legalConsiderations:
           type: string
+        regulatoryConsiderations:
+          type: string
+        infrastructureDependencies:
+          type: string
+        localCompetitors:
+          type: string
+        localLaunchChannels:
+          type: string
+        localConstraints:
+          type: string
         requiredRoles:
+          type: string
+        contributorSkills:
           type: string
         contributorsNeeded:
           type: integer
         tags:
           type: string
+        visibility:
+          type: string
+          enum: [public, private, contributors_only]
 
     PaginatedIdeas:
       type: object
@@ -1382,6 +1496,13 @@ components:
           enum: [active, removed]
       required: [status]
 
+    AdminToggleFeaturedBody:
+      type: object
+      properties:
+        featured:
+          type: boolean
+      required: [featured]
+
     AdminUpdateUserRoleBody:
       type: object
       properties:
@@ -1389,3 +1510,45 @@ components:
           type: string
           enum: [user, admin]
       required: [role]
+
+    AdminContribution:
+      type: object
+      properties:
+        id:
+          type: integer
+        ideaId:
+          type: integer
+        ideaTitle:
+          type: string
+        userId:
+          type: integer
+        userName:
+          type: string
+        role:
+          type: string
+        message:
+          type: string
+          nullable: true
+        contributionType:
+          type: string
+        status:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, ideaId, ideaTitle, userId, userName, role, contributionType, status, createdAt]
+
+    PaginatedAdminContributions:
+      type: object
+      properties:
+        contributions:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminContribution"
+        total:
+          type: integer
+        page:
+          type: integer
+        totalPages:
+          type: integer
+      required: [contributions, total, page, totalPages]

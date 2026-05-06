@@ -18,8 +18,10 @@ import type {
 
 import type {
   AdminListCommentsParams,
+  AdminListContributionsParams,
   AdminListIdeasParams,
   AdminListUsersParams,
+  AdminToggleFeaturedBody,
   AdminUpdateIdeaStatusBody,
   AdminUpdateUserRoleBody,
   AuthResponse,
@@ -40,6 +42,7 @@ import type {
   LoginBody,
   MarketFitRegion,
   MessageResponse,
+  PaginatedAdminContributions,
   PaginatedComments,
   PaginatedIdeas,
   PaginatedUsers,
@@ -2661,6 +2664,93 @@ export const useAdminUpdateIdeaStatus = <
 };
 
 /**
+ * @summary Admin - feature or unfeature an idea
+ */
+export const getAdminToggleFeaturedUrl = (id: number) => {
+  return `/api/admin/ideas/${id}/featured`;
+};
+
+export const adminToggleFeatured = async (
+  id: number,
+  adminToggleFeaturedBody: AdminToggleFeaturedBody,
+  options?: RequestInit,
+): Promise<Idea> => {
+  return customFetch<Idea>(getAdminToggleFeaturedUrl(id), {
+    ...options,
+    method: "PUT",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(adminToggleFeaturedBody),
+  });
+};
+
+export const getAdminToggleFeaturedMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminToggleFeatured>>,
+    TError,
+    { id: number; data: BodyType<AdminToggleFeaturedBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof adminToggleFeatured>>,
+  TError,
+  { id: number; data: BodyType<AdminToggleFeaturedBody> },
+  TContext
+> => {
+  const mutationKey = ["adminToggleFeatured"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof adminToggleFeatured>>,
+    { id: number; data: BodyType<AdminToggleFeaturedBody> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return adminToggleFeatured(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type AdminToggleFeaturedMutationResult = NonNullable<
+  Awaited<ReturnType<typeof adminToggleFeatured>>
+>;
+export type AdminToggleFeaturedMutationBody = BodyType<AdminToggleFeaturedBody>;
+export type AdminToggleFeaturedMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Admin - feature or unfeature an idea
+ */
+export const useAdminToggleFeatured = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof adminToggleFeatured>>,
+    TError,
+    { id: number; data: BodyType<AdminToggleFeaturedBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof adminToggleFeatured>>,
+  TError,
+  { id: number; data: BodyType<AdminToggleFeaturedBody> },
+  TContext
+> => {
+  return useMutation(getAdminToggleFeaturedMutationOptions(options));
+};
+
+/**
  * @summary Admin - list all users
  */
 export const getAdminListUsersUrl = (params?: AdminListUsersParams) => {
@@ -2930,6 +3020,109 @@ export function useAdminListComments<
   },
 ): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const queryOptions = getAdminListCommentsQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Admin - list all expressions of interest
+ */
+export const getAdminListContributionsUrl = (
+  params?: AdminListContributionsParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/admin/contributions?${stringifiedParams}`
+    : `/api/admin/contributions`;
+};
+
+export const adminListContributions = async (
+  params?: AdminListContributionsParams,
+  options?: RequestInit,
+): Promise<PaginatedAdminContributions> => {
+  return customFetch<PaginatedAdminContributions>(
+    getAdminListContributionsUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getAdminListContributionsQueryKey = (
+  params?: AdminListContributionsParams,
+) => {
+  return [`/api/admin/contributions`, ...(params ? [params] : [])] as const;
+};
+
+export const getAdminListContributionsQueryOptions = <
+  TData = Awaited<ReturnType<typeof adminListContributions>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: AdminListContributionsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof adminListContributions>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getAdminListContributionsQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof adminListContributions>>
+  > = ({ signal }) =>
+    adminListContributions(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof adminListContributions>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type AdminListContributionsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof adminListContributions>>
+>;
+export type AdminListContributionsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Admin - list all expressions of interest
+ */
+
+export function useAdminListContributions<
+  TData = Awaited<ReturnType<typeof adminListContributions>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: AdminListContributionsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof adminListContributions>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getAdminListContributionsQueryOptions(params, options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;

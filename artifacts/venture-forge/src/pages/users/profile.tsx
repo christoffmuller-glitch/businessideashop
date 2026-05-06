@@ -2,7 +2,7 @@ import { Layout } from "@/components/layout/Layout";
 import { useParams, Link } from "wouter";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useGetUser, useGetUserIdeas } from "@workspace/api-client-react";
+import { useGetUser, useGetUserIdeas, getGetUserQueryKey, getGetUserIdeasQueryKey } from "@workspace/api-client-react";
 import { Loader2, User as UserIcon, Lightbulb } from "lucide-react";
 import { IdeaCard } from "@/components/ideas/IdeaCard";
 
@@ -11,11 +11,11 @@ export default function PublicProfile() {
   const id = parseInt(params.id || "0", 10);
 
   const { data: user, isLoading: isUserLoading } = useGetUser(id, {
-    query: { enabled: !!id }
+    query: { queryKey: getGetUserQueryKey(id), enabled: !!id },
   });
 
   const { data: ideasData, isLoading: isIdeasLoading } = useGetUserIdeas(id, {
-    query: { enabled: !!id }
+    query: { queryKey: getGetUserIdeasQueryKey(id), enabled: !!id },
   });
 
   if (isUserLoading) {

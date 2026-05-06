@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { eq, desc, sql } from "drizzle-orm";
-import { db, ideasTable, usersTable, commentsTable } from "@workspace/db";
+import { db, ideasTable, usersTable, commentsTable, contributionsTable } from "@workspace/db";
 
 const router: IRouter = Router();
 
@@ -41,6 +41,23 @@ router.put("/admin/ideas/:id/status", async (req, res): Promise<void> => {
   }
 
   const [updated] = await db.update(ideasTable).set({ status }).where(eq(ideasTable.id, id)).returning();
+  if (!updated) { res.status(404).json({ error: "Idea not found" }); return; }
+
+  const [owner] = await db.select({ name: usersTable.name }).from(usersTable).where(eq(usersTable.id, updated.ownerId));
+  res.json({ ...updated, ownerName: owner?.name ?? "Unknown", userVote: null, isFollowing: null });
+});
+
+router.put("/admin/ideas/:id/featured", async (req, res): Promise<void> => {
+  if (!(await requireAdmin(req, res))) return;
+
+  const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+  const id = parseInt(raw, 10);
+  const { featured } = req.body;
+  if (typeof featured !== "boolean") {
+    res.status(400).json({ error: "featured must be a boolean" }); return;
+  }
+
+  const [updated] = await db.update(ideasTable).set({ featured }).where(eq(ideasTable.id, id)).returning();
   if (!updated) { res.status(404).json({ error: "Idea not found" }); return; }
 
   const [owner] = await db.select({ name: usersTable.name }).from(usersTable).where(eq(usersTable.id, updated.ownerId));
@@ -102,6 +119,37 @@ router.get("/admin/comments", async (req, res): Promise<void> => {
     .offset(offset);
 
   res.json({ comments, total, page, totalPages: Math.ceil(total / limit) });
+});
+
+router.get("/admin/contributions", async (req, res): Promise<void> => {
+  if (!(await requireAdmin(req, res))) return;
+
+  const page = parseInt((req.query.page as string) ?? "1", 10);
+  const limit = 20;
+  const offset = (page - 1) * limit;
+
+  const [{ total }] = await db.select({ total: sql<number>`count(*)::int` }).from(contributionsTable);
+  const contributions = await db
+    .select({
+      id: contributionsTable.id,
+      ideaId: contributionsTable.ideaId,
+      ideaTitle: ideasTable.title,
+      userId: contributionsTable.userId,
+      userName: usersTable.name,
+      role: contributionsTable.role,
+      message: contributionsTable.message,
+      contributionType: contributionsTable.contributionType,
+      status: contributionsTable.status,
+      createdAt: contributionsTable.createdAt,
+    })
+    .from(contributionsTable)
+    .innerJoin(usersTable, eq(contributionsTable.userId, usersTable.id))
+    .innerJoin(ideasTable, eq(contributionsTable.ideaId, ideasTable.id))
+    .orderBy(desc(contributionsTable.createdAt))
+    .limit(limit)
+    .offset(offset);
+
+  res.json({ contributions, total, page, totalPages: Math.ceil(total / limit) });
 });
 
 export default router;

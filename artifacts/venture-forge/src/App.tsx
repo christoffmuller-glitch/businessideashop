@@ -10,9 +10,14 @@ import Register from "@/pages/auth/register";
 import BrowseIdeas from "@/pages/ideas/index";
 import SubmitIdea from "@/pages/ideas/new";
 import IdeaDetail from "@/pages/ideas/detail";
+import MyIdeas from "@/pages/ideas/my-ideas";
 import Profile from "@/pages/profile";
 import PublicProfile from "@/pages/users/profile";
 import AdminDashboard from "@/pages/admin/index";
+import HowItWorks from "@/pages/how-it-works";
+import About from "@/pages/about";
+import Privacy from "@/pages/privacy";
+import Terms from "@/pages/terms";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +31,7 @@ function Router() {
       {/* Ideas routes */}
       <Route path="/ideas" component={BrowseIdeas} />
       <Route path="/ideas/new" component={SubmitIdea} />
+      <Route path="/ideas/my-ideas" component={MyIdeas} />
       <Route path="/ideas/:id" component={IdeaDetail} />
       
       {/* User routes */}
@@ -34,6 +40,12 @@ function Router() {
       
       {/* Admin route */}
       <Route path="/admin" component={AdminDashboard} />
+
+      {/* Static pages */}
+      <Route path="/how-it-works" component={HowItWorks} />
+      <Route path="/about" component={About} />
+      <Route path="/privacy" component={Privacy} />
+      <Route path="/terms" component={Terms} />
 
       <Route component={NotFound} />
     </Switch>

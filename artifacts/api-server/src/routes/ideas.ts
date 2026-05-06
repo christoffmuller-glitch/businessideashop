@@ -24,6 +24,55 @@ function requireAuth(req: any): number | null {
   return (req.session as Record<string, unknown>).userId as number | null;
 }
 
+// Rule-based quality score out of 100
+function computeQualityScore(idea: Record<string, any>): number {
+  let score = 0;
+
+  // Problem clarity (15 pts)
+  const prob = idea.problemStatement ?? "";
+  if (prob.length > 150) score += 15;
+  else if (prob.length > 60) score += 8;
+
+  // Customer specificity (15 pts)
+  const cust = idea.targetCustomer ?? "";
+  if (cust.length > 100) score += 15;
+  else if (cust.length > 40) score += 8;
+
+  // Market relevance (10 pts)
+  const why = idea.whyThisMarket ?? "";
+  if (why.length > 40) score += 10;
+  else if (idea.targetRegion) score += 5;
+
+  // Feasibility / stage maturity (10 pts)
+  const advancedStages = ["Prototype", "Pilot", "Launch-ready", "MVP in development", "MVP launched", "Early traction", "Revenue generating", "Scaling"];
+  const midStages = ["Researching", "Validating", "Problem validated", "Solution defined", "Market research completed", "Business model drafted"];
+  if (advancedStages.includes(idea.maturityStage)) score += 10;
+  else if (midStages.includes(idea.maturityStage)) score += 5;
+
+  // Differentiation - competitors known (10 pts)
+  const comp = idea.knownCompetitors ?? "";
+  if (comp.length > 30) score += 10;
+
+  // Revenue potential (10 pts)
+  const rev = idea.revenueModel ?? "";
+  if (rev.length > 20) score += 10;
+
+  // Localisation strength (10 pts)
+  const local = (idea.localConstraints ?? "") + (idea.localCompetitors ?? "") + (idea.localLaunchChannels ?? "");
+  if (local.length > 30) score += 10;
+  else if (why.length > 10) score += 5;
+
+  // Contributor readiness (10 pts)
+  const skills = idea.contributorSkills ?? "";
+  if (skills.length > 0) score += 10;
+
+  // Evidence / assumptions (10 pts)
+  const pmf = idea.pmfAssumptions ?? "";
+  if (pmf.length > 30) score += 10;
+
+  return Math.min(100, score);
+}
+
 async function enrichIdea(idea: typeof ideasTable.$inferSelect, userId?: number) {
   const [owner] = await db.select({ name: usersTable.name }).from(usersTable).where(eq(usersTable.id, idea.ownerId));
   let userVote = null;
@@ -41,8 +90,8 @@ router.get("/ideas/featured", async (req, res): Promise<void> => {
   const userId = requireAuth(req) ?? undefined;
 
   const featured = await db.select().from(ideasTable)
-    .where(eq(ideasTable.status, "active"))
-    .orderBy(desc(ideasTable.score))
+    .where(and(eq(ideasTable.status, "active"), eq(ideasTable.featured, true)))
+    .orderBy(desc(ideasTable.qualityScore))
     .limit(6);
 
   const trending = await db.select().from(ideasTable)
@@ -73,18 +122,20 @@ router.get("/ideas", async (req, res): Promise<void> => {
     return;
   }
 
-  const { page = 1, limit = 12, industry, maturityStage, region, sort, search } = parsed.data;
+  const { page = 1, limit = 12, industry, maturityStage, region, sort, search, contributorSkill } = parsed.data as any;
   const offset = (page - 1) * limit;
 
   const conditions = [eq(ideasTable.status, "active")];
   if (industry) conditions.push(eq(ideasTable.industry, industry));
   if (maturityStage) conditions.push(eq(ideasTable.maturityStage, maturityStage));
   if (region) conditions.push(eq(ideasTable.targetRegion, region));
+  if (contributorSkill) conditions.push(ilike(ideasTable.contributorSkills, `%${contributorSkill}%`));
   if (search) {
     conditions.push(
       or(
         ilike(ideasTable.title, `%${search}%`),
         ilike(ideasTable.summary, `%${search}%`),
+        ilike(ideasTable.industry, `%${search}%`),
       )!
     );
   }
@@ -94,6 +145,7 @@ router.get("/ideas", async (req, res): Promise<void> => {
   let orderBy;
   switch (sort) {
     case "most_voted": orderBy = desc(ideasTable.score); break;
+    case "highest_score": orderBy = desc(ideasTable.qualityScore); break;
     case "most_active": orderBy = desc(sql`${ideasTable.upvotes} + ${ideasTable.commentsCount}`); break;
     case "most_commented": orderBy = desc(ideasTable.commentsCount); break;
     default: orderBy = desc(ideasTable.createdAt);
@@ -114,7 +166,13 @@ router.post("/ideas", async (req, res): Promise<void> => {
   const parsed = CreateIdeaBody.safeParse(req.body);
   if (!parsed.success) { res.status(400).json({ error: parsed.error.message }); return; }
 
-  const [idea] = await db.insert(ideasTable).values({ ...parsed.data, ownerId: userId }).returning();
+  const qualityScore = computeQualityScore(parsed.data);
+
+  const [idea] = await db.insert(ideasTable).values({
+    ...parsed.data,
+    ownerId: userId,
+    qualityScore,
+  }).returning();
 
   // Create default venture elements
   await db.insert(ventureElementsTable).values(
@@ -161,7 +219,14 @@ router.put("/ideas/:id", async (req, res): Promise<void> => {
     res.status(403).json({ error: "Forbidden" }); return;
   }
 
-  const [updated] = await db.update(ideasTable).set(parsed.data).where(eq(ideasTable.id, params.data.id)).returning();
+  // Recompute quality score on update
+  const merged = { ...existing, ...parsed.data };
+  const qualityScore = computeQualityScore(merged);
+
+  const [updated] = await db.update(ideasTable)
+    .set({ ...parsed.data, qualityScore })
+    .where(eq(ideasTable.id, params.data.id))
+    .returning();
   const enriched = await enrichIdea(updated, userId);
   res.json(enriched);
 });
