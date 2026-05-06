@@ -3,20 +3,36 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: VentureForge API specification
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Authentication
+  - name: ideas
+    description: Business ideas
+  - name: votes
+    description: Voting
+  - name: comments
+    description: Comments and suggestions
+  - name: contributions
+    description: Contribution interest
+  - name: users
+    description: User profiles
+  - name: admin
+    description: Admin operations
+  - name: stats
+    description: Aggregate stats and wow endpoints
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +40,762 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # Auth
+  /auth/register:
+    post:
+      operationId: register
+      tags: [auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterBody"
+      responses:
+        "201":
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginBody"
+      responses:
+        "200":
+          description: Logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Logout
+      responses:
+        "200":
+          description: Logged out
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current user
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # Ideas
+  /ideas:
+    get:
+      operationId: listIdeas
+      tags: [ideas]
+      summary: List business ideas with filters
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 12
+        - name: industry
+          in: query
+          schema:
+            type: string
+        - name: maturityStage
+          in: query
+          schema:
+            type: string
+        - name: region
+          in: query
+          schema:
+            type: string
+        - name: contributionRole
+          in: query
+          schema:
+            type: string
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [newest, most_voted, most_active, most_commented]
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of ideas
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedIdeas"
+
+    post:
+      operationId: createIdea
+      tags: [ideas]
+      summary: Submit a new business idea
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateIdeaBody"
+      responses:
+        "201":
+          description: Idea created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Idea"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /ideas/featured:
+    get:
+      operationId: getFeaturedIdeas
+      tags: [ideas]
+      summary: Get featured and trending ideas for home page
+      responses:
+        "200":
+          description: Featured ideas
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeaturedIdeasResponse"
+
+  /ideas/{id}:
+    get:
+      operationId: getIdea
+      tags: [ideas]
+      summary: Get idea details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Idea detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IdeaDetail"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    put:
+      operationId: updateIdea
+      tags: [ideas]
+      summary: Update idea (owner only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateIdeaBody"
+      responses:
+        "200":
+          description: Updated idea
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Idea"
+
+    delete:
+      operationId: deleteIdea
+      tags: [ideas]
+      summary: Delete idea (owner or admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /ideas/{id}/venture-elements:
+    get:
+      operationId: getVentureElements
+      tags: [ideas]
+      summary: Get venture elements checklist for an idea
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Venture elements
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/VentureElement"
+
+    put:
+      operationId: updateVentureElements
+      tags: [ideas]
+      summary: Update venture elements (owner only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                elements:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/UpdateVentureElementBody"
+              required: [elements]
+      responses:
+        "200":
+          description: Updated elements
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/VentureElement"
+
+  /ideas/{id}/market-fit:
+    get:
+      operationId: getMarketFit
+      tags: [ideas]
+      summary: Get market fit by region for an idea
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Market fit regions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MarketFitRegion"
+
+    post:
+      operationId: addMarketFitRegion
+      tags: [ideas]
+      summary: Add a market fit region (owner only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateMarketFitRegionBody"
+      responses:
+        "201":
+          description: Region added
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MarketFitRegion"
+
+  # Votes
+  /ideas/{id}/vote:
+    post:
+      operationId: voteOnIdea
+      tags: [votes]
+      summary: Upvote or downvote an idea
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VoteBody"
+      responses:
+        "200":
+          description: Vote recorded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VoteResult"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # Comments
+  /ideas/{id}/comments:
+    get:
+      operationId: listComments
+      tags: [comments]
+      summary: List comments for an idea
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Comments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Comment"
+
+    post:
+      operationId: createComment
+      tags: [comments]
+      summary: Add a comment to an idea
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCommentBody"
+      responses:
+        "201":
+          description: Comment created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Comment"
+
+  /comments/{commentId}:
+    delete:
+      operationId: deleteComment
+      tags: [comments]
+      summary: Delete a comment (author or admin)
+      parameters:
+        - name: commentId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  # Contributions
+  /ideas/{id}/contributions:
+    get:
+      operationId: listContributions
+      tags: [contributions]
+      summary: List contribution requests for an idea (owner only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Contribution requests
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Contribution"
+
+    post:
+      operationId: offerContribution
+      tags: [contributions]
+      summary: Offer a contribution to an idea
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateContributionBody"
+      responses:
+        "201":
+          description: Contribution submitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Contribution"
+
+  /contributions/{contributionId}/status:
+    put:
+      operationId: updateContributionStatus
+      tags: [contributions]
+      summary: Accept or reject a contribution (idea owner)
+      parameters:
+        - name: contributionId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateContributionStatusBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Contribution"
+
+  # User profiles
+  /users/{id}:
+    get:
+      operationId: getUser
+      tags: [users]
+      summary: Get user profile
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /users/{id}/ideas:
+    get:
+      operationId: getUserIdeas
+      tags: [users]
+      summary: Get ideas submitted by a user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: User's ideas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Idea"
+
+  /profile:
+    put:
+      operationId: updateProfile
+      tags: [users]
+      summary: Update current user's profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProfileBody"
+      responses:
+        "200":
+          description: Updated profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  # Follow
+  /ideas/{id}/follow:
+    post:
+      operationId: followIdea
+      tags: [ideas]
+      summary: Follow an idea
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Follow toggled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FollowResult"
+
+  # Stats (wow endpoints)
+  /stats/overview:
+    get:
+      operationId: getStatsOverview
+      tags: [stats]
+      summary: Platform-wide stats overview
+      responses:
+        "200":
+          description: Stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatsOverview"
+
+  /stats/trending:
+    get:
+      operationId: getTrendingIdeas
+      tags: [stats]
+      summary: Trending ideas by votes and activity
+      responses:
+        "200":
+          description: Trending ideas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Idea"
+
+  /stats/industries:
+    get:
+      operationId: getIndustryBreakdown
+      tags: [stats]
+      summary: Idea counts by industry
+      responses:
+        "200":
+          description: Industry breakdown
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/IndustryCount"
+
+  # Admin
+  /admin/ideas:
+    get:
+      operationId: adminListIdeas
+      tags: [admin]
+      summary: Admin - list all ideas
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: All ideas
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedIdeas"
+
+  /admin/ideas/{id}/status:
+    put:
+      operationId: adminUpdateIdeaStatus
+      tags: [admin]
+      summary: Admin - approve or remove an idea
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminUpdateIdeaStatusBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Idea"
+
+  /admin/users:
+    get:
+      operationId: adminListUsers
+      tags: [admin]
+      summary: Admin - list all users
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: All users
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedUsers"
+
+  /admin/users/{id}/role:
+    put:
+      operationId: adminUpdateUserRole
+      tags: [admin]
+      summary: Admin - update user role
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminUpdateUserRoleBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /admin/comments:
+    get:
+      operationId: adminListComments
+      tags: [admin]
+      summary: Admin - list all comments
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+      responses:
+        "200":
+          description: Comments
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedComments"
+
 components:
   schemas:
     HealthStatus:
@@ -31,6 +803,589 @@ components:
       properties:
         status:
           type: string
-      required:
-        - status
+      required: [status]
 
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required: [error]
+
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+      required: [message]
+
+    RegisterBody:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 6
+        name:
+          type: string
+      required: [email, password, name]
+
+    LoginBody:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+      required: [email, password]
+
+    AuthResponse:
+      type: object
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+        message:
+          type: string
+      required: [user, message]
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+        name:
+          type: string
+        role:
+          type: string
+          enum: [user, admin]
+        bio:
+          type: string
+          nullable: true
+        location:
+          type: string
+          nullable: true
+        skills:
+          type: string
+          nullable: true
+        areasOfInterest:
+          type: string
+          nullable: true
+        willingRoles:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, email, name, role, createdAt]
+
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        bio:
+          type: string
+          nullable: true
+        location:
+          type: string
+          nullable: true
+        skills:
+          type: string
+          nullable: true
+        areasOfInterest:
+          type: string
+          nullable: true
+        willingRoles:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        ideasCount:
+          type: integer
+        followedIdeasCount:
+          type: integer
+        contributionsCount:
+          type: integer
+      required: [id, name, createdAt, ideasCount, followedIdeasCount, contributionsCount]
+
+    UpdateProfileBody:
+      type: object
+      properties:
+        name:
+          type: string
+        bio:
+          type: string
+        location:
+          type: string
+        skills:
+          type: string
+        areasOfInterest:
+          type: string
+        willingRoles:
+          type: string
+
+    Idea:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        summary:
+          type: string
+        industry:
+          type: string
+        targetRegion:
+          type: string
+        maturityStage:
+          type: string
+        tags:
+          type: string
+          nullable: true
+        upvotes:
+          type: integer
+        downvotes:
+          type: integer
+        score:
+          type: integer
+        commentsCount:
+          type: integer
+        contributorsNeeded:
+          type: integer
+        status:
+          type: string
+          enum: [active, removed]
+        ownerId:
+          type: integer
+        ownerName:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        userVote:
+          type: string
+          enum: [up, down]
+          nullable: true
+        isFollowing:
+          type: boolean
+          nullable: true
+      required: [id, title, summary, industry, targetRegion, maturityStage, upvotes, downvotes, score, commentsCount, contributorsNeeded, status, ownerId, ownerName, createdAt]
+
+    IdeaDetail:
+      allOf:
+        - $ref: "#/components/schemas/Idea"
+        - type: object
+          properties:
+            description:
+              type: string
+            problemStatement:
+              type: string
+            proposedSolution:
+              type: string
+            targetCustomer:
+              type: string
+            knownCompetitors:
+              type: string
+              nullable: true
+            legalConsiderations:
+              type: string
+              nullable: true
+            pmfAssumptions:
+              type: string
+              nullable: true
+            requiredRoles:
+              type: string
+              nullable: true
+            ventureElements:
+              type: array
+              items:
+                $ref: "#/components/schemas/VentureElement"
+            marketFitRegions:
+              type: array
+              items:
+                $ref: "#/components/schemas/MarketFitRegion"
+          required: [description, problemStatement, proposedSolution, targetCustomer]
+
+    CreateIdeaBody:
+      type: object
+      properties:
+        title:
+          type: string
+        summary:
+          type: string
+        description:
+          type: string
+        industry:
+          type: string
+        targetRegion:
+          type: string
+        problemStatement:
+          type: string
+        proposedSolution:
+          type: string
+        targetCustomer:
+          type: string
+        maturityStage:
+          type: string
+        pmfAssumptions:
+          type: string
+        knownCompetitors:
+          type: string
+        legalConsiderations:
+          type: string
+        requiredRoles:
+          type: string
+        contributorsNeeded:
+          type: integer
+          default: 1
+        tags:
+          type: string
+      required: [title, summary, description, industry, targetRegion, problemStatement, proposedSolution, targetCustomer, maturityStage]
+
+    UpdateIdeaBody:
+      type: object
+      properties:
+        title:
+          type: string
+        summary:
+          type: string
+        description:
+          type: string
+        industry:
+          type: string
+        targetRegion:
+          type: string
+        problemStatement:
+          type: string
+        proposedSolution:
+          type: string
+        targetCustomer:
+          type: string
+        maturityStage:
+          type: string
+        pmfAssumptions:
+          type: string
+        knownCompetitors:
+          type: string
+        legalConsiderations:
+          type: string
+        requiredRoles:
+          type: string
+        contributorsNeeded:
+          type: integer
+        tags:
+          type: string
+
+    PaginatedIdeas:
+      type: object
+      properties:
+        ideas:
+          type: array
+          items:
+            $ref: "#/components/schemas/Idea"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+        totalPages:
+          type: integer
+      required: [ideas, total, page, limit, totalPages]
+
+    FeaturedIdeasResponse:
+      type: object
+      properties:
+        featured:
+          type: array
+          items:
+            $ref: "#/components/schemas/Idea"
+        trending:
+          type: array
+          items:
+            $ref: "#/components/schemas/Idea"
+        recent:
+          type: array
+          items:
+            $ref: "#/components/schemas/Idea"
+      required: [featured, trending, recent]
+
+    VentureElement:
+      type: object
+      properties:
+        id:
+          type: integer
+        ideaId:
+          type: integer
+        element:
+          type: string
+        status:
+          type: string
+          enum: [not_started, needed, in_progress, completed, needs_expert_review]
+      required: [id, ideaId, element, status]
+
+    UpdateVentureElementBody:
+      type: object
+      properties:
+        element:
+          type: string
+        status:
+          type: string
+          enum: [not_started, needed, in_progress, completed, needs_expert_review]
+      required: [element, status]
+
+    MarketFitRegion:
+      type: object
+      properties:
+        id:
+          type: integer
+        ideaId:
+          type: integer
+        region:
+          type: string
+        marketOpportunity:
+          type: string
+          nullable: true
+        keyCustomerSegment:
+          type: string
+          nullable: true
+        localCompetitors:
+          type: string
+          nullable: true
+        legalConsiderations:
+          type: string
+          nullable: true
+        barriersToEntry:
+          type: string
+          nullable: true
+        pricingAssumptions:
+          type: string
+          nullable: true
+        productChanges:
+          type: string
+          nullable: true
+        confidenceScore:
+          type: integer
+          minimum: 1
+          maximum: 5
+      required: [id, ideaId, region, confidenceScore]
+
+    CreateMarketFitRegionBody:
+      type: object
+      properties:
+        region:
+          type: string
+        marketOpportunity:
+          type: string
+        keyCustomerSegment:
+          type: string
+        localCompetitors:
+          type: string
+        legalConsiderations:
+          type: string
+        barriersToEntry:
+          type: string
+        pricingAssumptions:
+          type: string
+        productChanges:
+          type: string
+        confidenceScore:
+          type: integer
+          minimum: 1
+          maximum: 5
+      required: [region, confidenceScore]
+
+    VoteBody:
+      type: object
+      properties:
+        vote:
+          type: string
+          enum: [up, down]
+      required: [vote]
+
+    VoteResult:
+      type: object
+      properties:
+        upvotes:
+          type: integer
+        downvotes:
+          type: integer
+        score:
+          type: integer
+        userVote:
+          type: string
+          enum: [up, down]
+          nullable: true
+      required: [upvotes, downvotes, score]
+
+    Comment:
+      type: object
+      properties:
+        id:
+          type: integer
+        ideaId:
+          type: integer
+        authorId:
+          type: integer
+        authorName:
+          type: string
+        content:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, ideaId, authorId, authorName, content, createdAt]
+
+    CreateCommentBody:
+      type: object
+      properties:
+        content:
+          type: string
+      required: [content]
+
+    Contribution:
+      type: object
+      properties:
+        id:
+          type: integer
+        ideaId:
+          type: integer
+        userId:
+          type: integer
+        userName:
+          type: string
+        role:
+          type: string
+        message:
+          type: string
+          nullable: true
+        experience:
+          type: string
+          nullable: true
+        contributionType:
+          type: string
+          enum: [free, equity, payment, investor]
+        status:
+          type: string
+          enum: [pending, accepted, rejected]
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, ideaId, userId, userName, role, contributionType, status, createdAt]
+
+    CreateContributionBody:
+      type: object
+      properties:
+        role:
+          type: string
+        message:
+          type: string
+        experience:
+          type: string
+        contributionType:
+          type: string
+          enum: [free, equity, payment, investor]
+      required: [role, contributionType]
+
+    UpdateContributionStatusBody:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [accepted, rejected]
+      required: [status]
+
+    FollowResult:
+      type: object
+      properties:
+        isFollowing:
+          type: boolean
+      required: [isFollowing]
+
+    StatsOverview:
+      type: object
+      properties:
+        totalIdeas:
+          type: integer
+        totalUsers:
+          type: integer
+        totalVotes:
+          type: integer
+        totalContributions:
+          type: integer
+        ideasByStage:
+          type: array
+          items:
+            type: object
+            properties:
+              stage:
+                type: string
+              count:
+                type: integer
+            required: [stage, count]
+      required: [totalIdeas, totalUsers, totalVotes, totalContributions, ideasByStage]
+
+    IndustryCount:
+      type: object
+      properties:
+        industry:
+          type: string
+        count:
+          type: integer
+      required: [industry, count]
+
+    PaginatedUsers:
+      type: object
+      properties:
+        users:
+          type: array
+          items:
+            $ref: "#/components/schemas/User"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+        totalPages:
+          type: integer
+      required: [users, total, page, limit, totalPages]
+
+    PaginatedComments:
+      type: object
+      properties:
+        comments:
+          type: array
+          items:
+            $ref: "#/components/schemas/Comment"
+        total:
+          type: integer
+        page:
+          type: integer
+        totalPages:
+          type: integer
+      required: [comments, total, page, totalPages]
+
+    AdminUpdateIdeaStatusBody:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [active, removed]
+      required: [status]
+
+    AdminUpdateUserRoleBody:
+      type: object
+      properties:
+        role:
+          type: string
+          enum: [user, admin]
+      required: [role]

@@ -1,0 +1,240 @@
+Build a responsive web application called “VentureForge” — a marketplace for business ideas and early-stage venture development.
+
+The platform allows users to submit business ideas, vote on them, contribute to them, and express interest in joining the idea in different roles such as angel investor, CTO, CFO, CMO, legal advisor, product contributor, operations lead, or general contributor.
+
+The website should be beginner-friendly, clean, modern, and professional. It should feel like a mix between Product Hunt, LinkedIn, and an early-stage startup incubator platform.
+
+Core concept:
+Each business idea is treated as an evolving venture opportunity. An idea can start as a simple concept and mature over time toward launch, revenue, scale, acquisition, or IPO readiness.
+
+Main user roles:
+1. Visitor
+   - Can browse public business ideas.
+   - Can view rankings, categories, maturity level, geography, and required contributions.
+2. Registered user
+   - Can submit business ideas.
+   - Can upvote or downvote ideas.
+   - Can comment on ideas.
+   - Can show interest in contributing to an idea.
+   - Can add suggestions or improvements to the concept.
+3. Idea owner
+   - Can create and manage their own business idea.
+   - Can define maturity level, required contributors, required venture elements, locations, and product-market fit assumptions.
+   - Can accept or reject contribution requests.
+4. Admin
+   - Can moderate users, ideas, comments, flagged content, and inappropriate submissions.
+
+Main pages:
+1. Home page
+   - Hero section explaining the platform.
+   - Search bar for finding business ideas.
+   - Featured business ideas.
+   - Trending ideas based on votes and activity.
+   - Call-to-action buttons: “Explore Ideas” and “Submit an Idea”.
+
+2. Browse Ideas page
+   - List of business ideas displayed as cards.
+   - Each card should show:
+     - Idea title
+     - Short summary
+     - Category or industry
+     - Geography or target market
+     - Maturity stage
+     - Upvotes and downvotes
+     - Number of contributors needed
+     - Tags
+   - Include filters for:
+     - Industry
+     - Country or region
+     - Maturity stage
+     - Contribution type needed
+     - Product-market fit confidence
+     - Most upvoted
+     - Most recent
+     - Most active
+
+3. Idea Detail page
+   - Full description of the business idea.
+   - Problem statement.
+   - Proposed solution.
+   - Target customers.
+   - Market or geography-specific notes.
+   - Product-market fit section.
+   - Maturity stage.
+   - Required venture elements.
+   - Required contributor roles.
+   - Voting section.
+   - Comments and suggestions section.
+   - Button to “Offer Contribution” or “Show Interest”.
+   - Button to “Follow this Idea”.
+
+4. Submit Idea page
+   - Form for users to submit a business idea.
+   - Fields:
+     - Idea title
+     - Short summary
+     - Full description
+     - Industry/category
+     - Target country or region
+     - Problem being solved
+     - Proposed solution
+     - Target customer
+     - Current maturity stage
+     - Product-market fit assumptions
+     - Known competitors
+     - Legal or regulatory considerations
+     - Required contributors
+     - Required venture elements
+     - Tags
+
+5. Contributor Marketplace section
+   - Users can browse ideas that need specific types of help.
+   - Contribution roles should include:
+     - Angel investor
+     - CTO
+     - CFO
+     - CMO
+     - Legal advisor
+     - Product designer
+     - Software developer
+     - Operations lead
+     - Business plan writer
+     - Market researcher
+     - Sales lead
+     - General contributor
+
+6. User Profile page
+   - User name
+   - Bio
+   - Location
+   - Skills
+   - Areas of interest
+   - Roles they are willing to play
+   - Ideas submitted
+   - Ideas followed
+   - Ideas they have contributed to
+
+7. Admin Dashboard
+   - View all ideas
+   - View all users
+   - View flagged content
+   - Moderate comments
+   - Remove inappropriate ideas
+   - Manage categories and maturity stages
+
+Business idea maturity model:
+Each idea should have a maturity stage. Use the following stages:
+1. Raw concept
+2. Problem validated
+3. Solution defined
+4. Market research completed
+5. Business model drafted
+6. MVP in development
+7. MVP launched
+8. Early traction
+9. Revenue generating
+10. Scaling
+11. Investment ready
+12. Acquisition or IPO path
+
+Venture elements:
+Each business idea should have a checklist of required venture elements. These are things needed to move the idea forward. Include:
+- Business plan
+- Market research
+- Product-market fit validation
+- MVP
+- Technical architecture
+- Financial model
+- Legal structure
+- Founder agreement
+- Contracts
+- Brand identity
+- Website or landing page
+- Sales strategy
+- Marketing strategy
+- Operations plan
+- Funding plan
+- Location or operating jurisdiction
+- Regulatory review
+- Intellectual property review
+
+Each venture element should have a status:
+- Not started
+- Needed
+- In progress
+- Completed
+- Needs expert review
+
+Product-market fit:
+Each idea should allow location-specific product-market fit notes. For example, the same idea may have different assumptions in South Africa, Brazil, Europe, or the United States due to laws, competition, culture, infrastructure, pricing, customer behaviour, or market maturity.
+
+Create a section on each idea called “Market Fit by Region”.
+For each region, show:
+- Country or region
+- Market opportunity
+- Key customer segment
+- Local competitors
+- Legal or regulatory considerations
+- Barriers to entry
+- Pricing assumptions
+- Product changes needed for that market
+- Product-market fit confidence score from 1 to 5
+
+Voting:
+Users can upvote or downvote business ideas.
+A user can only vote once per idea.
+Show total score and number of votes.
+
+Contribution interest:
+Users can click “Offer Contribution” on an idea and choose:
+- Role they want to play
+- Short message
+- Relevant experience
+- Whether they want to contribute for free, for equity, for payment, or as an investor
+
+Important:
+Do not build payment processing in the first version.
+Do not allow actual investment transactions in the first version.
+Include a clear disclaimer that the platform does not provide financial, legal, or investment advice.
+Include a disclaimer that users must do their own due diligence before entering into any commercial, legal, or investment arrangement.
+
+Recommended technical approach:
+Use a simple full-stack web app suitable for Replit.
+Use React for the frontend.
+Use a clean component-based design.
+Use a backend API.
+Use a database to store users, ideas, votes, comments, contribution requests, venture elements, and market-fit regions.
+Use Replit’s built-in database or PostgreSQL if available.
+Include simple authentication for user accounts.
+Use responsive design so it works on desktop and mobile.
+
+Design style:
+- Clean
+- Professional
+- Modern
+- Startup-focused
+- Trustworthy
+- Minimal clutter
+- White background with subtle accent colours
+- Card-based layout
+- Clear tags, badges, filters, and progress indicators
+
+Build the first version as a working MVP with:
+1. Home page
+2. Browse ideas page
+3. Idea detail page
+4. Submit idea page
+5. User profile page
+6. Basic login and registration
+7. Database-backed ideas
+8. Voting
+9. Comments
+10. Contribution interest form
+11. Venture element checklist
+12. Market fit by region section
+13. Basic admin dashboard
+
+Seed the app with 5 example business ideas so the platform does not look empty.
+
+Make the code clean, simple, and easy for a non-technical user to continue improving through future Replit prompts.
+``

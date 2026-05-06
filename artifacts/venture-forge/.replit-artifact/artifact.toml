@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "VentureForge"
+version = "1.0.0"
+id = "artifacts/venture-forge"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 20670
+
+[services.development]
+run = "pnpm --filter @workspace/venture-forge run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/venture-forge", "run", "build" ]
+publicDir = "artifacts/venture-forge/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "20670"
+BASE_PATH = "/"
