@@ -1,0 +1,258 @@
+You are redesigning the existing website/application into a polished early beta for a product now called:
+
+Business Idea Shop
+
+Please inspect the current codebase first and preserve the existing application functionality, routes, authentication, database logic, idea submission flow, and user flows. The goal is a comprehensive visual and UX redesign, not a rebuild from scratch.
+
+Product positioning:
+Business Idea Shop is a structured marketplace where business ideas are submitted, ranked, localised by market, developed through evidence, and matched with contributors who can help move them from concept to launch.
+
+The website should feel:
+- Modern
+- Clean
+- Premium
+- Editorial
+- Structured
+- Startup-friendly
+- Trustworthy
+- Calm and intelligent
+- Not gimmicky
+- Not overly colourful
+- Not generic SaaS blue/purple
+
+Rename and rebrand the full site from the current name to:
+Business Idea Shop
+
+Update all visible references, metadata, page titles, navigation labels, hero copy, footer copy, empty states, and SEO/app metadata to use "Business Idea Shop".
+
+Design inspiration:
+Use the linked Dribbble inspiration as directional inspiration only:
+https://dribbble.com/shots/24071825-FYNSEC-Web-Design-for-Cyber-Security-Website
+
+Do not copy it directly. Use it as inspiration for:
+- Modern premium landing page composition
+- Spacious sections
+- Strong typography
+- Soft, subtle abstract visuals
+- Clean card-based layouts
+- Calm confident tone
+- High-quality startup/product website feel
+
+Visual identity:
+Use a refined palette inspired by Anthropic-like tones:
+- Warm off-white background
+- Soft ivory / cream surfaces
+- Off-charcoal text
+- Muted dark sage green as the primary brand colour
+- Subtle beige, stone, clay, or warm grey accents
+- Minimal use of harsh black or pure white
+- Avoid bright neon colours
+- Avoid generic gradients unless very subtle
+
+Suggested colour direction:
+- Background: #F7F3EA or similar warm off-white
+- Surface/card: #FFFDF7 or #F2EDE3
+- Primary text: #24241F or similar off-charcoal
+- Secondary text: #6E6A5F
+- Primary brand: #2F4A3D or #365446 dark sage green
+- Primary brand hover: slightly deeper sage
+- Border: #DED6C8
+- Muted accent: #B8A98E or #CBBFA8
+
+Typography:
+Use a modern serif font for headings and brand moments.
+Use a clean sans-serif font for body text and UI.
+
+Preferred direction:
+- Headings: modern serif, elegant but readable
+- Body/UI: clean sans-serif, highly legible
+- Avoid overly decorative fonts
+- The brand should feel intelligent, editorial and practical
+
+If using Google Fonts or available web fonts, suitable examples include:
+- Headings: Fraunces, Cormorant Garamond, Playfair Display, Source Serif 4, Libre Baskerville
+- Body: Inter, Manrope, IBM Plex Sans, or similar
+
+Use font pairing consistently:
+- Large hero headline in serif
+- Section headings in serif
+- Body, buttons, form labels and navigation in sans-serif
+
+Layout requirements:
+Create a polished, responsive design system across the full website:
+- Consistent header/navigation
+- Consistent footer
+- Reusable card components
+- Reusable buttons
+- Reusable badges
+- Reusable form styling
+- Reusable page containers
+- Responsive mobile layout
+- Good spacing and hierarchy
+- Clean hover/focus states
+- Accessible contrast
+
+Important:
+Do not remove working functionality.
+Do not break authentication.
+Do not break idea submission.
+Do not add fake/seed/demo business ideas.
+The app should still launch empty unless real users submit ideas.
+
+Homepage redesign:
+Create a premium landing page for Business Idea Shop.
+
+Hero section:
+- Large serif headline
+- Concise supporting copy
+- Clear CTA buttons
+- Calm abstract visual or structured product preview area
+- No fake data unless clearly shown as interface illustration and not stored as real ideas
+
+Suggested hero copy:
+Headline:
+"Turn promising business ideas into launchable opportunities."
+
+Supporting copy:
+"Business Idea Shop helps founders, operators and contributors submit, structure, rank, localise and develop business ideas — then match them with the people needed to move from concept to launch."
+
+CTA buttons:
+- Submit an Idea
+- Explore Ideas
+
+Add a small beta label:
+"Private beta for structured idea development"
+
+Homepage sections:
+1. How it works
+Show a clean six-step flow:
+- Submit an idea
+- Structure the opportunity
+- Score and rank it
+- Localise it by market
+- Identify contributor needs
+- Move toward validation, prototype, pilot and launch
+
+2. Why it exists
+Explain that many people have business ideas, but few have the structure, evidence, market context and contributor network to move them forward.
+
+3. What makes it different
+Use cards:
+- Structured idea submissions
+- Transparent early-stage scoring
+- Market localisation
+- Contributor matching
+- Evidence-based development
+- Launch pathway
+
+4. Built for
+Use cards or clean columns:
+- Aspiring founders
+- Domain experts
+- Technical builders
+- Operators
+- Investors and advisors
+- Incubators and innovation teams
+
+5. Final CTA
+Invite users to create an account and submit the first real idea.
+
+Navigation:
+Use a clean sticky or top-aligned navigation.
+Include:
+- Business Idea Shop logo/wordmark
+- Explore Ideas
+- Submit Idea
+- How It Works
+- My Ideas
+- Sign In / Create Account or profile/logout if logged in
+
+Logo/wordmark:
+Create a text-based logo for now:
+Business Idea Shop
+
+Style:
+- Serif or mixed serif/sans mark
+- Clean, premium, understated
+- Optional small icon using simple line work: idea card, shop window, seed, grid, or spark
+- Do not use a cartoon lightbulb
+
+How It Works page:
+Redesign this page to be clean and editorial.
+
+Include:
+- Page headline: "How Business Idea Shop works"
+- Intro paragraph explaining the concept
+- Six-step process with concise explanation for each step
+- A section explaining scoring
+- A section explaining market localisation
+- A section explaining contributor matching
+- A trust/IP note
+
+Trust/IP note:
+"Only share information you are comfortable disclosing. Public summaries may be visible to other users. Detailed information should be kept private unless you choose to share it. Formal IP ownership, equity and contributor agreements are not yet handled by this prototype."
+
+Explore Ideas page:
+- Apply the new visual design.
+- If there are no submitted ideas, show a beautiful empty state:
+  "No ideas have been submitted yet."
+  Supporting copy:
+  "Be the first to add a structured business idea to Business Idea Shop."
+  CTA:
+  "Submit an Idea"
+- Do not show seed or fake ideas.
+- If ideas exist, show them as clean cards with:
+  - Title
+  - One-line summary
+  - Market/geography
+  - Stage
+  - Score
+  - Contributor need tags
+  - View details button
+- Add filters visually styled to match the new design.
+
+Submit Idea page:
+Redesign the form to feel premium but practical.
+Use clear sections:
+1. Idea basics
+2. Problem and customer
+3. Solution and market
+4. Localisation
+5. Contributor needs
+6. Visibility and submission
+
+Improve form UX:
+- Clear section cards
+- Helpful helper text
+- Required field indicators
+- Clean input styling
+- Good mobile layout
+- No clutter
+
+Add the trust/IP note near the top or before submit:
+"Only share information you are comfortable disclosing. Public idea summaries may be visible to other users. Detailed information should be kept private unless you choose to share it. Formal IP ownership, equity and contributor agreements are not yet handled by this prototype."
+
+Idea detail page:
+Apply the new design.
+Use a clean detail layout:
+- Header area with title, summary, stage badge and score
+- Main content sections:
+  - Problem
+  - Target customer
+  - Proposed solution
+  - Market localisation
+  - Revenue model
+  - Contributor needs
+- Sidebar or secondary panel:
+  - Score
+  - Stage
+  - Market
+  - Owner
+  - Created date
+  - Offer to contribute button
+- Owner actions:
+  - Edit
+  - Archive/delete if currently supported
+
+My Ideas page:
+- Apply new visual design.
